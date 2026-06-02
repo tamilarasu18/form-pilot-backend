@@ -147,6 +147,31 @@ async def list_daily_logs(
     return [_build_log_response(log) for log in logs]
 
 
+@router.get("/logs", response_model=list[DailyLogResponse])
+async def list_all_daily_logs(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    date_from: date | None = Query(None),
+    date_to: date | None = Query(None),
+):
+    """List all daily logs for the current user."""
+    query = (
+        select(DailyLog)
+        .options(selectinload(DailyLog.expenses))
+        .where(DailyLog.user_id == current_user.id)
+        .order_by(DailyLog.log_date.desc())
+    )
+
+    if date_from:
+        query = query.where(DailyLog.log_date >= date_from)
+    if date_to:
+        query = query.where(DailyLog.log_date <= date_to)
+
+    result = await db.execute(query)
+    logs = result.scalars().all()
+    return [_build_log_response(log) for log in logs]
+
+
 @router.get("/logs/{log_id}", response_model=DailyLogResponse)
 async def get_daily_log(
     log_id: str,
