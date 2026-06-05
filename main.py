@@ -10,7 +10,8 @@ from app.models.crop import Crop, DEFAULT_CROPS
 from app.models.user import User  # noqa: F401 - imported for table creation
 from app.models.land import Land, LandSection  # noqa: F401
 from app.models.daily_log import DailyLog, Expense  # noqa: F401
-from app.routers import auth, users, lands, crops, daily_logs
+from app.models.soil_test import SoilTest  # noqa: F401
+from app.routers import auth, users, lands, crops, daily_logs, soil_tests
 
 settings = get_settings()
 
@@ -55,6 +56,7 @@ app.include_router(users.router)
 app.include_router(lands.router)
 app.include_router(crops.router)
 app.include_router(daily_logs.router)
+app.include_router(soil_tests.router)
 
 
 @app.get("/api/health")
